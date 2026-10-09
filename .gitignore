@@ -1,0 +1,15 @@
+# ModelSim / QuestaSim artifacts
+work/
+transcript
+vsim.wlf
+*.vstf
+*.wlf
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+*.swp
