@@ -67,6 +67,39 @@ Each instruction cycle is executed across 7 synchronous states:
 7. **WRITE**: The destination register is written synchronously in the register file.
 8. **COMPLETE**: Clears write enables and loops back to `FETCH` if `cpu_enable` remains active, or returns to `IDLE`.
 
+### Multi-Cycle FSM Control & Timing Table
+
+Each instruction takes exactly **7 clock cycles** from `FETCH` to `COMPLETE` once `cpu_enable = '1'`. Below is the exact cycle-by-cycle RTL behavior of the controller:
+
+| Cycle | FSM State | `alu_enable` | `write_enable_in` | Active RTL Operations & Signal Transfers | Next State |
+| --- | --- | --- | --- | --- | --- |
+| **0** | **`IDLE`** | `'0'`<br> | `'0'`<br> | Holds control enables low; waits for `cpu_enable = '1'`.
+
+ | `FETCH` (if `cpu_enable='1'`)
+
+ |
+| **1** | **`FETCH`** | `'0'`<br> | `'0'`<br> | Latches external `instruction[15:0]` into internal `instruction_raw`.
+
+ | `DECODE`<br> |
+| **2** | **`DECODE`** | `'0'`<br> | `'0'`<br> | `cpu_decoder` outputs `opcode`, `address_flag`, `negative_flag`, `operand1`, and `operand2`. FSM drives `register_addr_dest_data_in <= operand1` and `register_addr_src_data_in <= operand2(5 DOWNTO 2)`.
+
+ | `READ_OPERAND`<br> |
+| **3** | **`READ_OPERAND`** | `'0'`<br> | `'0'`<br> | Wait state allowing synchronous `cpu_registerfile` read ports (`register_value_dest_data_out` and `register_value_src_data_out`) to latch valid data.
+
+ | `READ_ADDRESS`<br> |
+| **4** | **`READ_ADDRESS`** | `'1'`<br> | `'0'`<br> | Latches `input1 <= register_value_dest_data_out`. Multiplexes `input2`: selects `register_value_src_data_out` if `address_flag = '1'`, else zero-extended immediate `"00" & operand2`. Asserts `alu_enable <= '1'`.
+
+ | `EXECUTE`<br> |
+| **5** | **`EXECUTE`** | `'0'`<br> | `'1'`<br> | `cpu_alu` computes `alu_result1`. FSM deasserts `alu_enable <= '0'`, asserts `write_enable_in <= '1'`, sets `register_addr_dest_data_in <= operand1`, and routes `alu_result1` (or its two's complement if `negative_flag = '1'`) to `register_value_dest_data_in`.
+
+ | `WRITE`<br> |
+| **6** | **`WRITE`** | `'0'`<br> | `'0'`<br> | `cpu_registerfile` writes `register_value_dest_data_in` into `reg_file(dest_idx)` on the clock edge. FSM deasserts `write_enable_in <= '0'`.
+
+ | `COMPLETE`<br> |
+| **7** | **`COMPLETE`** | `'0'`<br> | `'0'`<br> | Instruction cycle complete. Loops directly back to `FETCH` for the next instruction if `cpu_enable = '1'`, or returns to `IDLE` if `cpu_enable = '0'`.
+
+ | `FETCH` or `IDLE`<br> |
+
 ---
 
 ## 5. Register File Organization

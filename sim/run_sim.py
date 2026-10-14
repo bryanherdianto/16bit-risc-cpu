@@ -29,7 +29,8 @@ def run():
         os.path.join(SRC_DIR, "alu.vhd"),
         os.path.join(SRC_DIR, "registerfile.vhd"),
         os.path.join(SRC_DIR, "cpu.vhd"),
-        os.path.join(SIM_DIR, "cpu_tb.vhd")
+        os.path.join(SIM_DIR, "cpu_tb.vhd"),
+        os.path.join(SIM_DIR, "factorial_tb.vhd")
     ]
     compile_cmd = [VCOM_EXE, "-work", WORK_DIR] + sources
     comp_res = subprocess.run(compile_cmd, capture_output=True, text=True)
@@ -38,23 +39,31 @@ def run():
         sys.exit(1)
     print("      Compilation successful: 0 Errors, 0 Warnings.")
 
-    print("[3/3] Running simulation in ModelSim...")
-    sim_cmd = [
-        VSIM_EXE,
-        "-c",
-        "-lib", WORK_DIR,
-        "cpu_tb",
-        "-do", "run -all; quit -f"
-    ]
-    sim_res = subprocess.run(sim_cmd, capture_output=True, text=True)
-    print(sim_res.stdout)
-    if "ALL CPU VERIFICATION TESTS COMPLETED SUCCESSFULLY!" in sim_res.stdout:
-        print("=" * 65)
-        print("SUCCESS: All CPU tests passed perfectly!")
-        print("=" * 65)
+    # Determine which testbench to run
+    tb_name = "factorial_tb" if len(sys.argv) > 1 and "fact" in sys.argv[1].lower() else "cpu_tb"
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "all":
+        tbs = ["cpu_tb", "factorial_tb"]
     else:
-        print("FAILED: Output did not indicate successful completion.")
-        sys.exit(1)
+        tbs = [tb_name]
+
+    for tb in tbs:
+        print(f"[3/3] Running simulation in ModelSim ({tb})...")
+        sim_cmd = [
+            VSIM_EXE,
+            "-c",
+            "-lib", WORK_DIR,
+            tb,
+            "-do", "run -all; quit -f"
+        ]
+        sim_res = subprocess.run(sim_cmd, capture_output=True, text=True)
+        print(sim_res.stdout)
+        if "COMPLETED SUCCESSFULLY!" in sim_res.stdout:
+            print("=" * 65)
+            print(f"SUCCESS: {tb} passed perfectly!")
+            print("=" * 65)
+        else:
+            print(f"FAILED: {tb} did not indicate successful completion.")
+            sys.exit(1)
 
 if __name__ == "__main__":
     run()
