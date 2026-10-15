@@ -2,39 +2,26 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
--- =============================================================================
--- Arithmetic Logic Unit (ALU)
--- Performs 8-bit arithmetic and logic operations based on a 4-bit opcode
--- Supported Opcodes:
---   "0000" : ADD     (input1 + input2)
---   "0001" : SUB     (input1 - input2)
---   "0010" : MUL     (input1 * input2)[7:0]
---   "0011" : DIV     (input1 / input2, with divide-by-zero protection)
---   "0100" : AND     (input1 AND input2)
---   "0101" : OR      (input1 OR input2)
---   "0110" : XOR     (input1 XOR input2)
---   "0111" : NOT     (NOT input1)
---   "1000" : NEG_ADD (input1 + (~input2 + 1))
---   "1001" : STOR    (input2)
--- =============================================================================
-
+--! @brief Arithmetic Logic Unit (ALU)
+--! @details Performs 8-bit arithmetic and logic operations based on a 4-bit opcode.
 ENTITY alu IS
     PORT (
-        cpu_clk    : IN  STD_LOGIC;
-        cpu_enable : IN  STD_LOGIC;
-        alu_enable : IN  STD_LOGIC;
-        opcode     : IN  STD_LOGIC_VECTOR (3 DOWNTO 0);
-        input1     : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
-        input2     : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);
-        result1    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-        result2    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+        cpu_clk    : IN  STD_LOGIC;                      --! Master CPU clock input
+        cpu_enable : IN  STD_LOGIC;                      --! Global CPU enable signal (active high)
+        alu_enable : IN  STD_LOGIC;                      --! ALU operation execution enable (active high)
+        opcode     : IN  STD_LOGIC_VECTOR (3 DOWNTO 0);  --! 4-bit operation code selector
+        input1     : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);  --! 8-bit primary operand (destination register value)
+        input2     : IN  STD_LOGIC_VECTOR (7 DOWNTO 0);  --! 8-bit secondary operand (source register value or immediate)
+        result1    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);  --! 8-bit computation result output
+        result2    : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)   --! 8-bit secondary passthrough output (input2 value)
     );
 END alu;
 
 ARCHITECTURE Behavioral OF alu IS
 BEGIN
 
-    PROCESS (cpu_clk)
+    --! Synchronous ALU evaluation process triggered on the rising edge of cpu_clk
+    alu_process: PROCESS (cpu_clk)
         VARIABLE mult : UNSIGNED(15 DOWNTO 0);
     BEGIN
         IF rising_edge(cpu_clk) THEN

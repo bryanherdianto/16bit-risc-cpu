@@ -1,34 +1,31 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 
--- =============================================================================
--- Instruction Decoder
--- Decodes 16-bit CPU instructions into opcode, flags, and operand fields
--- Instruction Format:
---   [15:12] Opcode        (4 bits)
---   [11]    Address Flag  (1 bit: '0' = Immediate, '1' = Register)
---   [10]    Negative Flag (1 bit: Two's complement writeback enable)
---   [9:6]   Operand 1     (4 bits: Destination Register Address)
---   [5:0]   Operand 2     (6 bits: Immediate Value or [5:2] Source Register Address)
--- =============================================================================
-
+--! @brief Instruction Decoder
+--! @details Decodes 16-bit CPU instructions into opcode, flags, and operand fields:
+--! - [15:12] Opcode (4 bits)
+--! - [11] Address Flag (1 bit: '0' = Immediate, '1' = Register)
+--! - [10] Negative Flag (1 bit: Two's complement writeback enable)
+--! - [9:6] Operand 1 (4 bits: Destination Register Address)
+--! - [5:0] Operand 2 (6 bits: Immediate Value or [5:2] Source Register Address)
 ENTITY decoder IS
     PORT (
-        cpu_clk       : IN  STD_LOGIC;
-        cpu_enable    : IN  STD_LOGIC;
-        instruction   : IN  STD_LOGIC_VECTOR (15 DOWNTO 0);
-        opcode        : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
-        address_flag  : OUT STD_LOGIC;
-        negative_flag : OUT STD_LOGIC;
-        operand1      : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
-        operand2      : OUT STD_LOGIC_VECTOR (5 DOWNTO 0)
+        cpu_clk       : IN  STD_LOGIC;                      --! Master CPU clock input
+        cpu_enable    : IN  STD_LOGIC;                      --! Global CPU enable signal (active high)
+        instruction   : IN  STD_LOGIC_VECTOR (15 DOWNTO 0); --! 16-bit instruction word input
+        opcode        : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);  --! 4-bit decoded operation code
+        address_flag  : OUT STD_LOGIC;                      --! Address mode flag ('0' = Immediate, '1' = Register)
+        negative_flag : OUT STD_LOGIC;                      --! Two's complement writeback control flag
+        operand1      : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);  --! 4-bit destination register address
+        operand2      : OUT STD_LOGIC_VECTOR (5 DOWNTO 0)   --! 6-bit operand (immediate value or shifted source register address)
     );
 END decoder;
 
 ARCHITECTURE Behavioral OF decoder IS
 BEGIN
 
-    PROCESS (cpu_clk)
+    --! Synchronous instruction decoding process triggered on the rising edge of cpu_clk
+    decode_process: PROCESS (cpu_clk)
     BEGIN
         IF rising_edge(cpu_clk) THEN
             IF cpu_enable = '1' THEN

@@ -3,19 +3,23 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 USE WORK.cpu_pkg.ALL;
 
--- =============================================================================
--- Top-Level 16-Bit RISC CPU
--- Integrates Instruction Decoder, 16x8-bit Register File, and 8-bit ALU.
--- FSM Control States:
---   IDLE -> FETCH -> DECODE -> READ_OPERAND -> READ_ADDRESS -> EXECUTE -> WRITE -> COMPLETE
--- =============================================================================
-
+--! @brief Top-Level 16-Bit RISC CPU
+--! @details Integrates Instruction Decoder, 16x8-bit Register File, and 8-bit ALU.
+--! FSM Control Cycle:
+--! - IDLE: Wait for cpu_enable activation
+--! - FETCH: Latch 16-bit instruction word
+--! - DECODE: Decode opcode, flags, and operand addresses
+--! - READ_OPERAND: Read operands from register file
+--! - READ_ADDRESS: Setup ALU operand inputs
+--! - EXECUTE: Perform ALU arithmetic/logic operation
+--! - WRITE: Write computed result back into destination register
+--! - COMPLETE: Conclude cycle and advance
 ENTITY cpu IS
     PORT (
-        cpu_clk     : IN STD_LOGIC;
-        cpu_enable  : IN STD_LOGIC;
-        cpu_reset   : IN STD_LOGIC;
-        instruction : IN STD_LOGIC_VECTOR (15 DOWNTO 0)
+        cpu_clk     : IN STD_LOGIC;                      --! Master system clock input
+        cpu_enable  : IN STD_LOGIC;                      --! Global CPU execution enable (active high)
+        cpu_reset   : IN STD_LOGIC;                      --! Asynchronous system reset (active high)
+        instruction : IN STD_LOGIC_VECTOR (15 DOWNTO 0)  --! 16-bit instruction word input
     );
 END cpu;
 
@@ -65,36 +69,56 @@ ARCHITECTURE Behavioral OF cpu IS
     END COMPONENT;
 
     -- Internal FSM Signals
+    --! Current state of the CPU control FSM
     SIGNAL state           : state_type := IDLE;
+    --! Program counter / instruction cycle counter
     SIGNAL program_counter : INTEGER := 0;
 
     -- Decoder Interconnects
+    --! Latched 16-bit instruction word
     SIGNAL instruction_raw : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    --! 4-bit decoded operation code
     SIGNAL opcode          : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    --! Addressing mode flag ('0' = Immediate, '1' = Register)
     SIGNAL address_flag    : STD_LOGIC := '0';
+    --! Negative flag for two's complement writeback enable
     SIGNAL negative_flag   : STD_LOGIC := '0';
+    --! 4-bit destination register address
     SIGNAL operand1        : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    --! 6-bit operand field (immediate value or shifted source register address)
     SIGNAL operand2        : STD_LOGIC_VECTOR(5 DOWNTO 0) := (OTHERS => '0');
 
     -- Register File Interconnects
+    --! Synchronous register file write enable control ('1' = write, '0' = read)
     SIGNAL write_enable_in              : STD_LOGIC := '0';
+    --! 4-bit destination register address driven to register file
     SIGNAL register_addr_dest_data_in   : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    --! 4-bit source register address driven to register file
     SIGNAL register_addr_src_data_in    : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit data written back into destination register
     SIGNAL register_value_dest_data_in  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit secondary data input to register file
     SIGNAL register_value_src_data_in   : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit data read out from destination register
     SIGNAL register_value_dest_data_out : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit data read out from source register
     SIGNAL register_value_src_data_out  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
 
     -- ALU Interconnects
+    --! ALU operation enable control ('1' = compute)
     SIGNAL alu_enable  : STD_LOGIC := '0';
+    --! 8-bit primary operand input to ALU (destination register data)
     SIGNAL input1      : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit secondary operand input to ALU (source register data or zero-extended immediate)
     SIGNAL input2      : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit primary result output from ALU
     SIGNAL alu_result1 : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    --! 8-bit secondary passthrough result from ALU
     SIGNAL alu_result2 : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
 
 BEGIN
 
-    -- Register File Instance
+    --! Dual-port 16x8-bit general purpose register file instance
     cpu_registerfile : registerfile
         PORT MAP (
             cpu_clk                      => cpu_clk,
@@ -110,7 +134,7 @@ BEGIN
             register_value_src_data_out  => register_value_src_data_out
         );
 
-    -- Instruction Decoder Instance
+    --! 16-bit instruction word decoder instance
     cpu_decoder : decoder
         PORT MAP (
             cpu_clk       => cpu_clk,
@@ -123,7 +147,7 @@ BEGIN
             operand2      => operand2
         );
 
-    -- Arithmetic Logic Unit Instance
+    --! 8-bit arithmetic logic unit (ALU) instance
     cpu_alu : alu
         PORT MAP (
             cpu_clk    => cpu_clk,
@@ -136,8 +160,8 @@ BEGIN
             result2    => alu_result2
         );
 
-    -- FSM Execution Process
-    PROCESS (cpu_clk, cpu_reset) IS
+    --! Main CPU control FSM and datapath sequencing process
+    fsm_process: PROCESS (cpu_clk, cpu_reset) IS
     BEGIN
         IF cpu_reset = '1' THEN
             state                       <= IDLE;
