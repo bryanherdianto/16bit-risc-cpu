@@ -13,3 +13,15 @@ __pycache__/
 # IDE files
 .vscode/
 *.swp
+
+# Quartus generated databases and outputs
+db/
+incremental_db/
+output_files/
+greybox_tmp/
+simulation/
+hc_output/
+
+# Quartus user-specific and temp files
+*.qws
+*.bak
