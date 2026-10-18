@@ -8,11 +8,12 @@ A modular, synthesizable 16-Bit RISC CPU implemented in VHDL, featuring an 8-bit
 
 ### Key Hardware Features
 
-- Instruction Word: 16-bit instruction format supporting immediate and register-direct addressing.
-- Datapath: 8-bit parallel arithmetic and logic operations.
-- Storage: 16 general-purpose 8-bit registers (R0 to R15).
-- FSM Sequencing: Deterministic 8-state synchronous execution cycle:
-  $$\text{IDLE} \rightarrow \text{FETCH} \rightarrow \text{DECODE} \rightarrow \text{READ\_OPERAND} \rightarrow \text{READ\_ADDRESS} \rightarrow \text{EXECUTE} \rightarrow \text{WRITE} \rightarrow \text{COMPLETE}$$
+- Instruction Word: 16-bit instruction format supporting immediate and register-direct addressing
+- Datapath: 8-bit parallel arithmetic and logic operations
+- Storage: 16 general-purpose 8-bit registers (R0 to R15)
+- FSM Sequencing: Deterministic 8-state synchronous execution cycle
+
+![](doc/state_diagram.png "State Diagram")
 
 ## Instruction Set Architecture (ISA)
 
