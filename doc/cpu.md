@@ -1,14 +1,17 @@
+# Entity: cpu
 
-# Entity: cpu 
-- **File**: cpu.vhd
-- **Brief:**  Top-Level 16-Bit RISC CPU
-- **Details:**  Integrates Instruction Decoder, 16x8-bit Register File, and 8-bit ALU.
+- **File:** cpu.vhd
+- **Brief:** Top-Level 16-Bit RISC CPU
+- **Details:** Integrates Instruction Decoder, 16x8-bit Register File, and 8-bit ALU.
 
 ## Diagram
+
 ![Diagram](cpu.svg "Diagram")
+
 ## Description
 
 FSM Control Cycle:
+
 - IDLE: Wait for cpu_enable activation
 - FETCH: Latch 16-bit instruction word
 - DECODE: Decode opcode, flags, and operand addresses
@@ -53,17 +56,20 @@ FSM Control Cycle:
 | alu_result2                  | STD_LOGIC_VECTOR(7 DOWNTO 0)  | 8-bit secondary passthrough result from ALU                                            |
 
 ## Processes
-- fsm_process: ( cpu_clk, cpu_reset )
-  - **Description**
-  Main CPU control FSM and datapath sequencing process
+
+- fsm_process
+  - Has a sensitivity list of cpu_clk and cpu_reset
+  - Main CPU control FSM and datapath sequencing process
 
 ## Instantiations
 
 - cpu_registerfile: registerfile
-  -  Dual-port 16x8-bit general purpose register file instance- cpu_decoder: decoder
-  -  16-bit instruction word decoder instance- cpu_alu: alu
-  -  8-bit arithmetic logic unit (ALU) instance
+  - Dual-port 16x8-bit general purpose register file instance
+- cpu_decoder: decoder
+  - 16-bit instruction word decoder instance
+- cpu_alu: alu
+  - 8-bit arithmetic logic unit (ALU) instance
+
 ## State machines
 
-- Main CPU control FSM and datapath sequencing process
-![Diagram_state_machine_0]( fsm_cpu_00.svg "Diagram")
+![Diagram_state_machine_0](fsm_cpu_00.svg "Diagram")

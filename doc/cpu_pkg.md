@@ -1,10 +1,7 @@
+# Package: cpu_pkg
 
-# Package: cpu_pkg 
 - **File**: cpu_pkg.vhd
-- **Brief:**  CPU package containing FSM state types, opcode constants, and register file definitions.
-
-## Description
-
+- **Brief:** CPU package containing FSM state types, opcode constants, and register file definitions.
 
 ## Constants
 
@@ -12,7 +9,7 @@
 | ---------- | ---------------------------- | ------ | ----------------------------------------------------- |
 | OP_ADD     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0000" | Addition (R_dest = R_dest + Operand2)                 |
 | OP_SUB     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0001" | Subtraction (R_dest = R_dest - Operand2)              |
-| OP_MUL     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0010" | Multiplication (R_dest = (R_dest * Operand2)[7:0])    |
+| OP_MUL     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0010" | Multiplication (R_dest = (R_dest \* Operand2)[7:0])   |
 | OP_DIV     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0011" | Division (R_dest = R_dest / Operand2)                 |
 | OP_AND     | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0100" | Bitwise AND (R_dest = R_dest AND Operand2)            |
 | OP_OR      | STD_LOGIC_VECTOR(3 DOWNTO 0) | "0101" | Bitwise OR (R_dest = R_dest OR Operand2)              |
@@ -23,15 +20,16 @@
 
 ## Types
 
-| Name       | Type | Description                                     |
-| ---------- | ---- | ----------------------------------------------- |
-| reg_file_t |      | Register File Type (16 registers x 8 bits each) |
+| Name       | Description                                     |
+| ---------- | ----------------------------------------------- |
+| reg_file_t | Register File Type (16 registers x 8 bits each) |
 
 ## Enums
 
+### _state_type_
 
-### *state_type*
- CPU FSM control states
+These are the control states for the CPU FSM.
+
 | Name         | Description                                           |
 | ------------ | ----------------------------------------------------- |
 | IDLE         | Wait for cpu_enable activation                        |
@@ -42,4 +40,3 @@
 | EXECUTE      | Execute ALU arithmetic or logic operation             |
 | WRITE        | Write result back into destination register           |
 | COMPLETE     | Instruction cycle complete                            |
-

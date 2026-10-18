@@ -1,11 +1,13 @@
+# Entity: registerfile
 
-# Entity: registerfile 
-- **File**: registerfile.vhd
-- **Brief:**  Register File (16 Registers x 8 bits each)
-- **Details:**  Supports dual-read ports (destination & source) and synchronous write back.
+- **File:** registerfile.vhd
+- **Brief:** Register File (16 Registers x 8 bits each)
+- **Details:** Supports dual-read ports (destination & source) and synchronous write back.
 
 ## Diagram
+
 ![Diagram](registerfile.svg "Diagram")
+
 ## Description
 
 Provides optional two's complement transformation on the source register read path.
@@ -34,11 +36,12 @@ Provides optional two's complement transformation on the source register read pa
 
 ## Types
 
-| Name      | Type | Description                                          |
-| --------- | ---- | ---------------------------------------------------- |
-| reg_array |      | 16-element array of 8-bit std_logic_vector registers |
+| Name      | Description                                          |
+| --------- | ---------------------------------------------------- |
+| reg_array | 16-element array of 8-bit std_logic_vector registers |
 
 ## Processes
-- reg_process: ( cpu_clk )
-  - **Description**
-  Synchronous register file read and write access process
+
+- reg_process
+  - Has a sensitivity list of cpu_clk
+  - Synchronous register file read and write access process

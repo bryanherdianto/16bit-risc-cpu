@@ -1,11 +1,13 @@
+# Entity: decoder
 
-# Entity: decoder 
-- **File**: decoder.vhd
-- **Brief:**  Instruction Decoder
-- **Details:**  Decodes 16-bit CPU instructions into opcode, flags, and operand fields:
+- **File:** decoder.vhd
+- **Brief:** Instruction Decoder
+- **Details:** Decodes 16-bit CPU instructions into opcode, flags, and operand fields:
 
 ## Diagram
+
 ![Diagram](decoder.svg "Diagram")
+
 ## Description
 
 - [15:12] Opcode (4 bits)
@@ -28,6 +30,7 @@
 | operand2      | out       | STD_LOGIC_VECTOR (5 DOWNTO 0)  | 6-bit operand (immediate value or shifted source register address) |
 
 ## Processes
-- decode_process: ( cpu_clk )
-  - **Description**
-  Synchronous instruction decoding process triggered on the rising edge of cpu_clk
+
+- decode_process
+  - Has a sensitivity list of cpu_clk
+  - Synchronous instruction decoding process triggered on the rising edge of cpu_clk

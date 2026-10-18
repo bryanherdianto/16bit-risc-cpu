@@ -1,13 +1,12 @@
+# Entity: alu
 
-# Entity: alu 
-- **File**: alu.vhd
-- **Brief:**  Arithmetic Logic Unit (ALU)
-- **Details:**  Performs 8-bit arithmetic and logic operations based on a 4-bit opcode.
+- **File:** alu.vhd
+- **Brief:** Arithmetic Logic Unit (ALU)
+- **Details:** Performs 8-bit arithmetic and logic operations based on a 4-bit opcode.
 
 ## Diagram
-![Diagram](alu.svg "Diagram")
-## Description
 
+![Diagram](alu.svg "Diagram")
 
 ## Ports
 
@@ -23,6 +22,7 @@
 | result2    | out       | STD_LOGIC_VECTOR (7 DOWNTO 0) | 8-bit secondary passthrough output (input2 value)            |
 
 ## Processes
-- alu_process: ( cpu_clk )
-  - **Description**
-  Synchronous ALU evaluation process triggered on the rising edge of cpu_clk
+
+- alu_process
+  - Has a sensitivity list of cpu_clk
+  - Synchronous ALU evaluation process triggered on the rising edge of cpu_clk
